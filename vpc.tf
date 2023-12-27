@@ -15,7 +15,7 @@ provider "aws" {
 # Create a VPC
 resource "aws_vpc" "sonarqube_vpc" {
   cidr_block = "10.0.0.0/16"
-	tags = {
+  tags = {
     Name = "sonarqube-vpc"
   }
 }
@@ -34,7 +34,7 @@ resource "aws_subnet" "sonarqube_public_subnet_2a" {
 
   }
 
- }
+}
 resource "aws_subnet" "sonarqube_public_subnet_2b" {
 
   vpc_id = aws_vpc.sonarqube_vpc.id
@@ -49,7 +49,7 @@ resource "aws_subnet" "sonarqube_public_subnet_2b" {
 
   }
 
- }
+}
 resource "aws_subnet" "sonarqube_public_subnet_2c" {
 
   vpc_id = aws_vpc.sonarqube_vpc.id
@@ -64,7 +64,7 @@ resource "aws_subnet" "sonarqube_public_subnet_2c" {
 
   }
 
- }
+}
 resource "aws_subnet" "sonarqube_private_subnet_2a" {
 
   vpc_id = aws_vpc.sonarqube_vpc.id
@@ -79,7 +79,7 @@ resource "aws_subnet" "sonarqube_private_subnet_2a" {
 
   }
 
- }
+}
 resource "aws_subnet" "sonarqube_private_subnet_2b" {
 
   vpc_id = aws_vpc.sonarqube_vpc.id
@@ -94,7 +94,7 @@ resource "aws_subnet" "sonarqube_private_subnet_2b" {
 
   }
 
- }
+}
 resource "aws_subnet" "sonarqube_private_subnet_2c" {
 
   vpc_id = aws_vpc.sonarqube_vpc.id
@@ -109,7 +109,7 @@ resource "aws_subnet" "sonarqube_private_subnet_2c" {
 
   }
 
- }
+}
 
 # internet gateway
 resource "aws_internet_gateway" "sonarqube_igw" {
@@ -122,7 +122,7 @@ resource "aws_internet_gateway" "sonarqube_igw" {
 
 # eip
 resource "aws_eip" "sonarqube_eip" {
-  domain   = "vpc"
+  domain = "vpc"
 }
 
 # NAT
@@ -133,7 +133,7 @@ resource "aws_nat_gateway" "sonarqube_nat" {
   tags = {
     Name = "sonarqube_nat"
   }
-  
+
   depends_on = [aws_internet_gateway.sonarqube_igw]
 }
 
@@ -167,12 +167,12 @@ resource "aws_route_table" "sonarqube_private_route_table_a" {
   vpc_id = aws_vpc.sonarqube_vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.sonarqube_nat.id
   }
   route {
     destination_prefix_list_id = aws_vpc_endpoint.s3.prefix_list_id
-    vpc_endpoint_id = aws_vpc_endpoint.s3.id
+    vpc_endpoint_id            = aws_vpc_endpoint.s3.id
   }
 
   tags = {
@@ -187,12 +187,12 @@ resource "aws_route_table" "sonarqube_private_route_table_b" {
   vpc_id = aws_vpc.sonarqube_vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.sonarqube_nat.id
   }
   route {
     destination_prefix_list_id = aws_vpc_endpoint.s3.prefix_list_id
-    vpc_endpoint_id = aws_vpc_endpoint.s3.id
+    vpc_endpoint_id            = aws_vpc_endpoint.s3.id
   }
   tags = {
     Name = "sonarqube_private_route_table_b"
@@ -208,12 +208,12 @@ resource "aws_route_table" "sonarqube_private_route_table_c" {
   vpc_id = aws_vpc.sonarqube_vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.sonarqube_nat.id
   }
   route {
     destination_prefix_list_id = aws_vpc_endpoint.s3.prefix_list_id
-    vpc_endpoint_id = aws_vpc_endpoint.s3.id
+    vpc_endpoint_id            = aws_vpc_endpoint.s3.id
   }
 
   tags = {
@@ -239,18 +239,18 @@ resource "aws_security_group" "sonarqube_default" {
   vpc_id      = aws_vpc.sonarqube_vpc.id
 
   ingress {
-    description      = "default"
-    from_port        = 2049
-    to_port          = 2049
-    protocol         = "tcp"
-    security_groups    = [aws_security_group.sonarqube_sg.id]
+    description     = "default"
+    from_port       = 2049
+    to_port         = 2049
+    protocol        = "tcp"
+    security_groups = [aws_security_group.sonarqube_sg.id]
   }
 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1" # all과 동일
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1" # all과 동일
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -263,18 +263,18 @@ resource "aws_security_group" "sonarqube_db" {
   vpc_id      = aws_vpc.sonarqube_vpc.id
 
   ingress {
-    description      = "postgre sql"
-    from_port        = 5432
-    to_port          = 5432
-    protocol         = "tcp"
-    security_groups    = [aws_security_group.sonarqube_sg.id]
+    description     = "postgre sql"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.sonarqube_sg.id]
   }
 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1" # all과 동일
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1" # all과 동일
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -287,18 +287,18 @@ resource "aws_security_group" "sonarqube_lb" {
   vpc_id      = aws_vpc.sonarqube_vpc.id
 
   ingress {
-    description      = " "
-    from_port        = 9000
-    to_port          = 9000
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"] # your ip
+    description = " "
+    from_port   = 9000
+    to_port     = 9000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # your ip
   }
 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1" # all과 동일
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1" # all과 동일
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -311,42 +311,30 @@ resource "aws_security_group" "sonarqube_sg" {
   vpc_id      = aws_vpc.sonarqube_vpc.id
 
   ingress {
-    description      = "TLS from VPC"
-    from_port        = 9000
-    to_port          = 9000
-    protocol         = "tcp"
-    security_groups    = [aws_security_group.sonarqube_lb.id]
+    description     = "TLS from VPC"
+    from_port       = 9000
+    to_port         = 9000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.sonarqube_lb.id]
   }
 
   egress {
-    from_port        = 5432
-    to_port          = 5432
-    protocol         = "-1" # all과 동일
-    security_groups    = [aws_security_group.sonarqube_db.id]
+    from_port   = 9000
+    to_port     = 9000
+    protocol    = "0"
+    cidr_blocks = ["0.0.0.0/0"]
   }
-	egress {
-    from_port        = 2049
-    to_port          = 2049
-    protocol         = "-1" # all과 동일
-    security_groups    = [aws_security_group.sonarqube_default.id]
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "0" # all과 동일
+    cidr_blocks = ["0.0.0.0/0"]
   }
-	egress {
-    from_port        = 9000
-    to_port          = 9000
-    protocol         = "-1" # all과 동일
-    cidr_blocks      = ["0.0.0.0/0"]
-  }
-	egress {
-    from_port        = 443
-    to_port          = 443
-    protocol         = "-1" # all과 동일
-    cidr_blocks      = ["0.0.0.0/0"]
-  }
-	egress {
-    from_port        = 80
-    to_port          = 80
-    protocol         = "-1" # all과 동일
-    cidr_blocks      = ["0.0.0.0/0"]
+  egress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "0" # all과 동일
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
