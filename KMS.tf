@@ -11,7 +11,7 @@ resource "aws_kms_key_policy" "sonarqube_key" {
         Action = "kms:*"
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::<account numbers>:<account ID>" #your iam arn
+          AWS = "arn:aws:iam::851077919242:root" #your iam arn
         }
 
         Resource = "*"
@@ -21,7 +21,7 @@ resource "aws_kms_key_policy" "sonarqube_key" {
         "Sid" : "Allow access for Key Administrators",
         "Effect" : "Allow",
         "Principal" : {
-          "AWS" : "arn:aws:iam::<account numbers>:user/<account ID>" #your iam arn
+          "AWS" : "arn:aws:iam::851077919242:user/jth0809" #your iam arn
         },
         "Action" : [
           "kms:Create*",
