@@ -5,27 +5,13 @@ resource "aws_lb" "sonarqube_lb" {
   security_groups    = [aws_security_group.sonarqube_lb.id]
   subnets            = [aws_subnet.sonarqube_public_subnet_2a.id, aws_subnet.sonarqube_public_subnet_2b.id, aws_subnet.sonarqube_public_subnet_2c.id]
 
-  enable_deletion_protection = true
-
-  access_logs {
-    bucket  = aws_s3_bucket.lb_logs.id
-    prefix  = "sonarqube-lb"
-    enabled = true
-  }
+  enable_deletion_protection = false
 
   tags = {
     Environment = "sonarqube"
   }
 }
-# s3 bucket
-resource "aws_s3_bucket" "lb_logs" {
-  bucket = "sonarqube-bucket"
 
-  tags = {
-    Name        = "sonarqube bucket"
-    Environment = "Dev"
-  }
-}
 
 # target group
 resource "aws_lb_target_group" "sonarqube" {

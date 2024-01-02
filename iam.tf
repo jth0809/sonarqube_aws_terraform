@@ -1,5 +1,5 @@
 resource "aws_iam_role" "SonarQubeTaskRole" {
-  name = "SonarQubeTaskRole"
+  name = "SonarQubeTaskRole1"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -16,7 +16,7 @@ resource "aws_iam_role" "SonarQubeTaskRole" {
   })
 }
 resource "aws_iam_role" "SonarQubeTaskExecutionRole" {
-  name = "SonarQubeTaskExecutionRole"
+  name = "SonarQubeTaskExecutionRole1"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -44,8 +44,8 @@ resource "aws_iam_role" "SonarQubeTaskExecutionRole" {
             "secretsmanager:GetSecretValue"
           ],
           "Resource" : [
-            "arn:aws:kms:ap-northeast-2: <aws id numbers> :key/<key id>",
-            "arn:aws:secretsmanager:ap-northeast-2: <aws id numbers> :secret:rds!cluster-<rds cluster id>"
+            "${aws_kms_key.sonarqube_key.arn}",
+            "${data.aws_secretsmanager_secret.cluster_secret.arn}"
           ]
         }
       ]

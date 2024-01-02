@@ -14,7 +14,8 @@ provider "aws" {
 
 # Create a VPC
 resource "aws_vpc" "sonarqube_vpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
   tags = {
     Name = "sonarqube-vpc"
   }
@@ -170,10 +171,7 @@ resource "aws_route_table" "sonarqube_private_route_table_a" {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.sonarqube_nat.id
   }
-  route {
-    destination_prefix_list_id = aws_vpc_endpoint.s3.prefix_list_id
-    vpc_endpoint_id            = aws_vpc_endpoint.s3.id
-  }
+
 
   tags = {
     Name = "sonarqube_private_route_table_a"
@@ -190,10 +188,7 @@ resource "aws_route_table" "sonarqube_private_route_table_b" {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.sonarqube_nat.id
   }
-  route {
-    destination_prefix_list_id = aws_vpc_endpoint.s3.prefix_list_id
-    vpc_endpoint_id            = aws_vpc_endpoint.s3.id
-  }
+
   tags = {
     Name = "sonarqube_private_route_table_b"
   }
@@ -211,10 +206,7 @@ resource "aws_route_table" "sonarqube_private_route_table_c" {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.sonarqube_nat.id
   }
-  route {
-    destination_prefix_list_id = aws_vpc_endpoint.s3.prefix_list_id
-    vpc_endpoint_id            = aws_vpc_endpoint.s3.id
-  }
+
 
   tags = {
     Name = "sonarqube_private_route_table_c"
@@ -228,8 +220,9 @@ resource "aws_route_table_association" "c1" {
 
 # S3 endpoint
 resource "aws_vpc_endpoint" "s3" {
-  vpc_id       = aws_vpc.sonarqube_vpc.id
-  service_name = "com.amazonaws.ap-northeast-2.s3"
+  vpc_id          = aws_vpc.sonarqube_vpc.id
+  service_name    = "com.amazonaws.ap-northeast-2.s3"
+  route_table_ids = [aws_route_table.sonarqube_private_route_table_a.id, aws_route_table.sonarqube_private_route_table_b.id, aws_route_table.sonarqube_private_route_table_c.id]
 }
 
 # security_group
@@ -319,21 +312,33 @@ resource "aws_security_group" "sonarqube_sg" {
   }
 
   egress {
-    from_port   = 9000
-    to_port     = 9000
-    protocol    = "0"
+    from_port   = 2049
+    to_port     = 2049
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "0" # all과 동일
+    from_port   = 9000
+    to_port     = 9000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     from_port   = 80
     to_port     = 80
-    protocol    = "0" # all과 동일
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 

@@ -6,21 +6,30 @@ resource "aws_db_subnet_group" "sonarqube_subnet_group" {
     Name = "sonarqube_subnet_group"
   }
 }
-
-#db instance
-resource "aws_db_instance" "sonarqube_db" {
-  allocated_storage             = 10
-  availability_zone             = "ap-northest-2a"
+resource "aws_rds_cluster" "sonarqube_db" {
+  cluster_identifier            = "sonarqube1"
+  engine                        = "aurora-postgresql"
   port                          = "5432"
-  db_name                       = "sonar"
-  engine                        = "Aurora PostgreSQL"
-  engine_version                = "15.3"
-  instance_class                = "db.t3.medium"
-  username                      = "sonar"
-  parameter_group_name          = "default.aurora-postgresql15"
-  skip_final_snapshot           = true
+  database_name                 = "sonarqube"
+  master_username               = "sonarqube"
+  backup_retention_period       = 5
+  preferred_backup_window       = "07:00-09:00"
+  db_subnet_group_name          = aws_db_subnet_group.sonarqube_subnet_group.id
   manage_master_user_password   = true
+  skip_final_snapshot           = true
   master_user_secret_kms_key_id = aws_kms_key.sonarqube_key.key_id
   vpc_security_group_ids        = [aws_security_group.sonarqube_db.id]
-  db_subnet_group_name          = aws_db_subnet_group.sonarqube_subnet_group.id
+}
+
+resource "aws_rds_cluster_instance" "sonarqube_instances" {
+  count              = 1
+  identifier         = "sonarqube-cluster-${count.index}"
+  cluster_identifier = aws_rds_cluster.sonarqube_db.id
+  instance_class     = "db.t3.medium"
+  engine             = aws_rds_cluster.sonarqube_db.engine
+  engine_version     = aws_rds_cluster.sonarqube_db.engine_version
+}
+
+data "aws_secretsmanager_secret" "cluster_secret" {
+  arn = aws_rds_cluster.sonarqube_db.master_user_secret[0].secret_arn
 }
