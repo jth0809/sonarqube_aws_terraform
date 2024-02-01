@@ -13,3 +13,5 @@ ECR PUSH sonarqube docker image
 Connect to port 9000 of the load balancer DNS. ( xxxxxx.xxxxxx.amazonaws.com:9000 )
 
 done.
+
+<img src=aws.png>
